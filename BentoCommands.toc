@@ -1,0 +1,7 @@
+## Interface: 11600
+## Title: Bento Check
+## Notes: Simple communication-enhancing chat commands.
+## Version: 1.0
+## Author: MIYANKO
+
+commands.lua
