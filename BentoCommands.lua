@@ -129,6 +129,36 @@ end
 
 
 
+local recentWhispers = {}
+
+SLASH_WHISPERLASTN1 = "/wl"
+SlashCmdList["WHISPERLASTN"] = function(msg)
+    local num, message = msg:match("^(%d+) (.+)$")
+    num = tonumber(num)
+
+    if num and message then
+        for i = #recentWhispers - num + 1, #recentWhispers do
+            if recentWhispers[i] then
+                SendChatMessage(message, "WHISPER", nil, recentWhispers[i])
+            end
+        end
+    end
+end
+
+local function TrackWhispers(_, _, msg, playerName)
+    table.insert(recentWhispers, playerName)
+    if #recentWhispers > 100 then
+        table.remove(recentWhispers, 1)
+    end
+end
+
+local WhisperLastEvents = CreateFrame("Frame")
+WhisperLastEvents:RegisterEvent("CHAT_MSG_WHISPER")
+WhisperLastEvents:SetScript("OnEvent", TrackWhispers)
+
+
+
+
 SLASH_CLOSETABS1 = "/c"
 SlashCmdList["CLOSETABS"] = function()
     for _, chatFrameName in pairs(CHAT_FRAMES) do
