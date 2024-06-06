@@ -18,6 +18,8 @@ SlashCmdList["BENTOCOMMANDS"] = function(msg, editBox)
         print("|cffFFEB3B/ww MESSAGE|r: Sends the MESSAGE to all players in a currently open /who instance.")
         print("|cffFFEB3B/ww N MESSAGE|r: Sends the MESSAGE to the first N count of players in a currently open /who instance.")
 
+        print("|cffFFEB3B/wl N MESSAGE|r: Sends the MESSAGE to the last N players who whispered you.")
+
         print("|cffFFEB3B/c|r: Closes all open whisper tabs.")
 
         print("|cffFFEB3B/rc|r: Perform a ready check.")
@@ -183,6 +185,20 @@ end
 SLASH_QUIT1 = "/q"
 SlashCmdList["QUIT"] = function()
     LeaveParty()
+end
+
+
+
+
+SLASH_LUAERROR1 = "/lua"
+SlashCmdList["LUAERROR"] = function()
+    if GetCVar("scriptErrors") == "0" then
+        SetCVar("scriptErrors", "1")
+        print("LUA Errors Enabled")
+    else
+        SetCVar("scriptErrors", "0")
+        print("LUA Errors Disabled")
+    end
 end
 
 
