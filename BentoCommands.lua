@@ -1,5 +1,5 @@
 local function CommandsIntro()
-    print("Type /bentocommands for available commands.")
+    print("|cFFFFFF00Type /bentocommands for available commands.|r")
 end
 
 local IntroEvents = CreateFrame("Frame")
@@ -9,24 +9,24 @@ IntroEvents:SetScript("OnEvent", CommandsIntro)
 SLASH_BENTOCOMMANDS1 = "/bentocommands"
 SlashCmdList["BENTOCOMMANDS"] = function(msg, editBox)
     if msg == "" then
-        print("|cffFFEB3B/f KEYWORD|r: Filters all active channels for KEYWORD and reposts matching messages.")
-        print("|cffFFEB3B/f KEYWORD1+KEYWORD2|r: Filters all active channels for the combination of KEYWORD1 and KEYWORD2 and reposts matching messages.")
-        print("|cffFFEB3B/f clear|r: Clears and stops the filtering.")
+        print("|cFFFFFF00/f KEYWORD|r: Filters all active channels for KEYWORD and reposts matching messages.")
+        print("|cFFFFFF00/f KEYWORD1+KEYWORD2|r: Filters all active channels for the combination of KEYWORD1 and KEYWORD2 and reposts matching messages.")
+        print("|cFFFFFF00/f clear|r: Clears and stops the filtering.")
 
-        print("|cffFFEB3B/bc N1-N2 MESSAGE|r: Broadcasts the message across all specified channels, where N1 and N2 are indicating the inclusive range of channels to be targeted.")
+        print("|cFFFFFF00/bc N1-N2 MESSAGE|r: Broadcasts the message across all specified channels, where N1 and N2 are indicating the inclusive range of channels to be targeted.")
 
-        print("|cffFFEB3B/ww MESSAGE|r: Sends the MESSAGE to all players in a currently open /who instance.")
-        print("|cffFFEB3B/ww N MESSAGE|r: Sends the MESSAGE to the first N count of players in a currently open /who instance.")
+        print("|cFFFFFF00/ww MESSAGE|r: Sends the MESSAGE to all players in a currently open /who instance.")
+        print("|cFFFFFF00/ww N MESSAGE|r: Sends the MESSAGE to the first N count of players in a currently open /who instance.")
 
-        print("|cffFFEB3B/wl N MESSAGE|r: Sends the MESSAGE to the last N players who whispered you.")
+        print("|cFFFFFF00/wl N MESSAGE|r: Sends the MESSAGE to the last N players who whispered you.")
 
-        print("|cffFFEB3B/c|r: Closes all open whisper tabs.")
+        print("|cFFFFFF00/c|r: Closes all open whisper tabs.")
 
-        print("|cffFFEB3B/rc|r: Perform a ready check.")
-        print("|cffFFEB3B/q|r: Leaves the current party or raid.")
+        print("|cFFFFFF00/rc|r: Perform a ready check.")
+        print("|cFFFFFF00/q|r: Leaves the current party or raid.")
 
-        print("|cffFFEB3B/ui|r: Reloads the user interface.")
-        print("|cffFFEB3B/gx|r: Restarts the graphics engine.")
+        print("|cFFFFFF00/ui|r: Reloads the user interface.")
+        print("|cFFFFFF00/gx|r: Restarts the graphics engine.")
     end
 end
 
@@ -64,11 +64,11 @@ FilterEvents:SetScript("OnEvent", KeywordValidation)
 
 SLASH_FILTER1 = "/f"
 SlashCmdList["FILTER"] = function(msg)
-    if msg == "clear" then
+    if msg == "" then
         wipe(KeywordTable)
-        print("|cffFFEB3BFilter:|r Cleared.")
+        print("|cFFFFFF00Filter:|r Cleared.")
         FilterEvents:UnregisterEvent("CHAT_MSG_CHANNEL")
-    elseif msg ~= "" then
+    else
         wipe(KeywordTable)
         local newKeywords = {}
         for keyword in string.gmatch(msg, "[^+]+") do
@@ -82,7 +82,7 @@ SlashCmdList["FILTER"] = function(msg)
                 newKeywordsStr = newKeywordsStr .. ", "
             end
         end
-        print("|cffFFEB3BFiltering: " .. newKeywordsStr:gsub('"', '') .. " .|r")
+        print("|cFFFFFF00Filtering: " .. newKeywordsStr:gsub('"', '') .. ".|r")
         FilterEvents:RegisterEvent("CHAT_MSG_CHANNEL")
     end
 end
@@ -107,22 +107,27 @@ end
 
 SLASH_WHISPERWHO1 = "/ww"
 SlashCmdList["WHISPERWHO"] = function(msg)
-    local num, message = msg:match("^(%d+) (.+)$")
-    num = tonumber(num)
-    local numWhos = visibleWhoCount or C_FriendList.GetNumWhoResults()
+    local classExclusion, message = msg:match("^%-(%w+) (.+)$")
+    local numWhos = C_FriendList.GetNumWhoResults()
 
-    if num then
-        message = msg:match("%d+ (.+)$")
+    if classExclusion then
+        classExclusion = classExclusion:lower()
+        message = msg:match("^%-%w+ (.+)$")
     else
-        num = numWhos
         message = msg
     end
 
     if message ~= "" and numWhos and numWhos > 0 then
-        for i = 1, math.min(numWhos, num) do
+        for i = 1, numWhos do
             local info = C_FriendList.GetWhoInfo(i)
             if info and info.fullName then
-                SendChatMessage(message, "WHISPER", nil, info.fullName)
+                if classExclusion then
+                    if info.classStr:lower() ~= classExclusion then
+                        SendChatMessage(message, "WHISPER", nil, info.fullName)
+                    end
+                else
+                    SendChatMessage(message, "WHISPER", nil, info.fullName)
+                end
             end
         end
     end
