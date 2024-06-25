@@ -2,7 +2,7 @@
 
 ## Addon for World of Warcraft Classic with simple communication-enhancing chat commands.
 
-## Commands Overview
+## Commands
 
 - `/f KEYWORD`: Filters all active channels for KEYWORD and reposts matching messages.
 - `/f KEYWORD1+KEYWORD2`: Filters all active channels for the combination of KEYWORD1 and KEYWORD2 and reposts matching messages.
