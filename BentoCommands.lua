@@ -27,6 +27,8 @@ SlashCmdList["BENTOCOMMANDS"] = function(msg, editBox)
 
         print("|cFFFFFF00/ui|r: Reloads the user interface.")
         print("|cFFFFFF00/gx|r: Restarts the graphics engine.")
+
+        print("|cFFFFFF00/lua|r: Toggles the display of LUA errors.")
     end
 end
 

@@ -2,7 +2,7 @@
 
 ## Addon for World of Warcraft Classic with simple communication-enhancing chat commands.
 
-## Command Overview
+## Commands
 
 - `/f KEYWORD`: Filters all active channels for KEYWORD and reposts matching messages.
 - `/f KEYWORD1+KEYWORD2`: Filters all active channels for the combination of KEYWORD1 and KEYWORD2 and reposts matching messages.
@@ -15,3 +15,4 @@
 - `/q`: Leaves the current party or raid.
 - `/ui`: Reloads the user interface.
 - `/gx`: Restarts the graphics engine.
+- `/lua`: Toggles the display of LUA errors.
