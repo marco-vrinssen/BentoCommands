@@ -10,7 +10,7 @@
 - `/f`: Clears and stops the filtering.
 
 #### Broadcasting
-- `/bc MESSAGE`: Broadcasts the MESSAGE across a default channel.
+- `/bc MESSAGE`: Broadcasts the MESSAGE across all joined channels.
 - `/bc N1-N2 MESSAGE`: Broadcasts the MESSAGE across all specified channels, where N1 and N2 are indicating the inclusive range of channels to be targeted.
 
 #### Multi-Whispering

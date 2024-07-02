@@ -13,7 +13,7 @@ SlashCmdList["BENTOCMD"] = function(msg, editBox)
         print("|cFFFFFF00/f KEYWORD1+KEYWORD2|r: Filters all active channels for the combination of KEYWORD1 and KEYWORD2 and reposts matching messages.")
         print("|cFFFFFF00/f|r: Clears and stops the filtering.")
 
-        print("|cFFFFFF00/bc MESSAGE|r: Broadcasts the MESSAGE across a default channel.")
+        print("|cFFFFFF00/bc MESSAGE|r: Broadcasts the MESSAGE across all joined channels.")
         print("|cFFFFFF00/bc N1-N2 MESSAGE|r: Broadcasts the MESSAGE across all specified channels, where N1 and N2 are indicating the inclusive range of channels to be targeted.")
 
         print("|cFFFFFF00/ww MESSAGE|r: Sends the MESSAGE to all players in a currently open /who instance.")
