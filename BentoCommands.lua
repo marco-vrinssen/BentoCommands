@@ -1,33 +1,31 @@
 local function CommandsIntro()
-    print("|cFFFFFF00Type /bentocommands for available commands.|r")
+    print("|cFFFFFF00Type /bentocmd for available commands.|r")
 end
 
 local IntroEvents = CreateFrame("Frame")
 IntroEvents:RegisterEvent("PLAYER_LOGIN")
 IntroEvents:SetScript("OnEvent", CommandsIntro)
 
-SLASH_BENTOCOMMANDS1 = "/bentocommands"
-SlashCmdList["BENTOCOMMANDS"] = function(msg, editBox)
+SLASH_BENTOCMD1 = "/bentocmd"
+SlashCmdList["BENTOCMD"] = function(msg, editBox)
     if msg == "" then
         print("|cFFFFFF00/f KEYWORD|r: Filters all active channels for KEYWORD and reposts matching messages.")
         print("|cFFFFFF00/f KEYWORD1+KEYWORD2|r: Filters all active channels for the combination of KEYWORD1 and KEYWORD2 and reposts matching messages.")
-        print("|cFFFFFF00/f clear|r: Clears and stops the filtering.")
+        print("|cFFFFFF00/f|r: Clears and stops the filtering.")
 
-        print("|cFFFFFF00/bc N1-N2 MESSAGE|r: Broadcasts the message across all specified channels, where N1 and N2 are indicating the inclusive range of channels to be targeted.")
+        print("|cFFFFFF00/bc MESSAGE|r: Broadcasts the MESSAGE across a default channel.")
+        print("|cFFFFFF00/bc N1-N2 MESSAGE|r: Broadcasts the MESSAGE across all specified channels, where N1 and N2 are indicating the inclusive range of channels to be targeted.")
 
         print("|cFFFFFF00/ww MESSAGE|r: Sends the MESSAGE to all players in a currently open /who instance.")
         print("|cFFFFFF00/ww N MESSAGE|r: Sends the MESSAGE to the first N count of players in a currently open /who instance.")
-
+        print("|cFFFFFF00/ww -CLASS MESSAGE|r: Sends the MESSAGE to all players who are not of the specified CLASS in a currently open /who instance.")
+        print("|cFFFFFF00/ww N -CLASS MESSAGE|r: Sends the MESSAGE to the first N count of players who are not of the specified CLASS in a currently open /who instance.")
         print("|cFFFFFF00/wl N MESSAGE|r: Sends the MESSAGE to the last N players who whispered you.")
-
-        print("|cFFFFFF00/c|r: Closes all open whisper tabs.")
 
         print("|cFFFFFF00/rc|r: Perform a ready check.")
         print("|cFFFFFF00/q|r: Leaves the current party or raid.")
-
         print("|cFFFFFF00/ui|r: Reloads the user interface.")
         print("|cFFFFFF00/gx|r: Restarts the graphics engine.")
-
         print("|cFFFFFF00/lua|r: Toggles the display of LUA errors.")
     end
 end
@@ -94,11 +92,16 @@ end
 
 SLASH_BROADCAST1 = "/bc"
 SlashCmdList["BROADCAST"] = function(msg)
-    local startChannel, endChannel, message = msg:match("(%d+)%-(%d+)%s+(.+)")
+    local startChannel, endChannel, message = msg:match("^(%d+)%-(%d+)%s+(.+)$")
     startChannel, endChannel = tonumber(startChannel), tonumber(endChannel)
 
     if startChannel and endChannel and message then
         for i = startChannel, endChannel do
+            SendChatMessage(message, "CHANNEL", nil, i)
+        end
+    else
+        message = msg
+        for i = 1, 10 do
             SendChatMessage(message, "CHANNEL", nil, i)
         end
     end
@@ -109,26 +112,45 @@ end
 
 SLASH_WHISPERWHO1 = "/ww"
 SlashCmdList["WHISPERWHO"] = function(msg)
-    local classExclusion, message = msg:match("^%-(%w+) (.+)$")
+    local limit, classExclusion, message
+
+    limit, classExclusion, message = msg:match("^(%d+)%s*-%s*(%w+)%s+(.+)$")
+    if not limit then
+        limit, message = msg:match("^(%d+)%s+(.+)$")
+        if not limit then
+            classExclusion, message = msg:match("^%-(%w+)%s+(.+)$")
+            if not classExclusion then
+                message = msg
+            end
+        end
+    end
+
     local numWhos = C_FriendList.GetNumWhoResults()
+
+    if limit then
+        limit = tonumber(limit)
+    else
+        limit = numWhos
+    end
 
     if classExclusion then
         classExclusion = classExclusion:lower()
-        message = msg:match("^%-%w+ (.+)$")
-    else
-        message = msg
     end
 
-    if message ~= "" and numWhos and numWhos > 0 then
+    if message and message ~= "" and numWhos and numWhos > 0 then
+        local count = 0
         for i = 1, numWhos do
+            if count >= limit then break end
             local info = C_FriendList.GetWhoInfo(i)
             if info and info.fullName then
                 if classExclusion then
                     if info.classStr:lower() ~= classExclusion then
                         SendChatMessage(message, "WHISPER", nil, info.fullName)
+                        count = count + 1
                     end
                 else
                     SendChatMessage(message, "WHISPER", nil, info.fullName)
+                    count = count + 1
                 end
             end
         end
@@ -143,12 +165,21 @@ local recentWhispers = {}
 SLASH_WHISPERLASTN1 = "/wl"
 SlashCmdList["WHISPERLASTN"] = function(msg)
     local num, message = msg:match("^(%d+) (.+)$")
-    num = tonumber(num)
 
-    if num and message then
-        for i = #recentWhispers - num + 1, #recentWhispers do
-            if recentWhispers[i] then
-                SendChatMessage(message, "WHISPER", nil, recentWhispers[i])
+    if not num then
+        message = msg
+        num = #recentWhispers
+    else
+        num = tonumber(num)
+    end
+
+    if num and message and message ~= "" then
+        local whispered = {}
+        for i = math.max(#recentWhispers - num + 1, 1), #recentWhispers do
+            local playerName = recentWhispers[i]
+            if playerName and not whispered[playerName] then
+                SendChatMessage(message, "WHISPER", nil, playerName)
+                whispered[playerName] = true
             end
         end
     end
@@ -201,10 +232,10 @@ SLASH_LUAERROR1 = "/lua"
 SlashCmdList["LUAERROR"] = function()
     if GetCVar("scriptErrors") == "0" then
         SetCVar("scriptErrors", "1")
-        print("LUA Errors Enabled")
+        print("|cFFFFFF00LUA Errors:|r Enabled")
     else
         SetCVar("scriptErrors", "0")
-        print("LUA Errors Disabled")
+        print("|cFFFFFF00LUA Errors:|r Disabled")
     end
 end
 
