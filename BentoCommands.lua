@@ -36,18 +36,31 @@ end
 local KeywordTable = {}
 
 local function KeywordMatch(msg, playerName)
-    local playerLink = "|Hplayer:" .. playerName .. "|h|cffFFEB3B[" .. playerName .. "]: |r|h"
+    local playerLink = "|Hplayer:" .. playerName .. "|h|cffFFFF00[" .. playerName .. "]: |r|h"
     print(playerLink .. msg)
     PlaySound(3175, "Master", true)
 end
 
 local function KeywordFilter(msg)
-    for _, keyword in ipairs(KeywordTable) do
-        if not strfind(strlower(msg), strlower(keyword)) then
-            return false
+    for _, keywordSet in ipairs(KeywordTable) do
+        if type(keywordSet) == "string" then
+            if strfind(strlower(msg), strlower(keywordSet)) then
+                return true
+            end
+        elseif type(keywordSet) == "table" then
+            local allMatch = true
+            for _, keyword in ipairs(keywordSet) do
+                if not strfind(strlower(msg), strlower(keyword)) then
+                    allMatch = false
+                    break
+                end
+            end
+            if allMatch then
+                return true
+            end
         end
     end
-    return true
+    return false
 end
 
 local function KeywordValidation(self, event, msg, playerName, languageName, channelName, ...)
@@ -69,21 +82,40 @@ SlashCmdList["FILTER"] = function(msg)
         print("|cFFFFFF00Filter:|r Cleared.")
         FilterEvents:UnregisterEvent("CHAT_MSG_CHANNEL")
     else
-        wipe(KeywordTable)
-        local newKeywords = {}
-        for keyword in string.gmatch(msg, "[^+]+") do
-            table.insert(newKeywords, keyword)
-            table.insert(KeywordTable, keyword)
+        if not FilterEvents:IsEventRegistered("CHAT_MSG_CHANNEL") then
+            FilterEvents:RegisterEvent("CHAT_MSG_CHANNEL")
         end
+
+        if strfind(msg, "+") then
+            local keywordSets = {strsplit(" ", msg)}
+            for _, set in ipairs(keywordSets) do
+                if strfind(set, "+") then
+                    local compoundSet = {}
+                    for keyword in string.gmatch(set, "[^+]+") do
+                        table.insert(compoundSet, keyword)
+                    end
+                    table.insert(KeywordTable, compoundSet)
+                else
+                    table.insert(KeywordTable, set)
+                end
+            end
+        else
+            table.insert(KeywordTable, msg)
+        end
+
         local newKeywordsStr = ""
-        for i, keyword in ipairs(newKeywords) do
-            newKeywordsStr = newKeywordsStr .. "|cffFFFDE7\"" .. keyword .. "\"|r"
-            if i ~= #newKeywords then
+        for i, keywordSet in ipairs(KeywordTable) do
+            if type(keywordSet) == "string" then
+                newKeywordsStr = newKeywordsStr .. "|cffFFFDE7\"" .. keywordSet .. "\"|r"
+            elseif type(keywordSet) == "table" then
+                local compoundStr = table.concat(keywordSet, " + ")
+                newKeywordsStr = newKeywordsStr .. "|cffFFFDE7\"" .. compoundStr .. "\"|r"
+            end
+            if i ~= #KeywordTable then
                 newKeywordsStr = newKeywordsStr .. ", "
             end
         end
         print("|cFFFFFF00Filtering: " .. newKeywordsStr:gsub('"', '') .. ".|r")
-        FilterEvents:RegisterEvent("CHAT_MSG_CHANNEL")
     end
 end
 
