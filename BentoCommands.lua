@@ -44,13 +44,15 @@ end
 local function KeywordFilter(msg)
     for _, keywordSet in ipairs(KeywordTable) do
         if type(keywordSet) == "string" then
-            if strfind(strlower(msg), strlower(keywordSet)) then
+            local pattern = "%f[%a]" .. strlower(keywordSet) .. "%f[%A]"
+            if strfind(strlower(msg), pattern) then
                 return true
             end
         elseif type(keywordSet) == "table" then
             local allMatch = true
             for _, keyword in ipairs(keywordSet) do
-                if not strfind(strlower(msg), strlower(keyword)) then
+                local pattern = "%f[%a]" .. strlower(keyword) .. "%f[%A]"
+                if not strfind(strlower(msg), pattern) then
                     allMatch = false
                     break
                 end
