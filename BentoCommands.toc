@@ -1,4 +1,4 @@
-## Interface: 11500
+## Interface: 11503
 ## Title: Bento Commands
 ## Notes: Simple communication-enhancing chat commands.
 ## Version: 1.0
