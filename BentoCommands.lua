@@ -33,13 +33,6 @@ end
 
 
 
-
-
-
-
-
-
-
 local KeywordTable = {}
 
 local function KeywordMatch(msg, playerName)
@@ -131,13 +124,6 @@ end
 
 
 
-
-
-
-
-
-
-
 SLASH_BROADCAST1 = "/bc"
 SlashCmdList["BROADCAST"] = function(msg)
     local startChannel, endChannel, message = msg:match("^(%d+)%-(%d+)%s+(.+)$")
@@ -154,12 +140,6 @@ SlashCmdList["BROADCAST"] = function(msg)
         end
     end
 end
-
-
-
-
-
-
 
 
 
@@ -306,5 +286,14 @@ end
 
 SLASH_RESTARTGX1 = "/gx"
 SlashCmdList["RESTARTGX"] = function()
+    RestartGx()
+end
+
+
+
+
+SLASH_RELOADANDRESTART1 = "/rl"
+SlashCmdList["RELOADANDRESTART"] = function()
+    ReloadUI()
     RestartGx()
 end
